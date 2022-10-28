@@ -11,7 +11,6 @@ namespace deck_of_cards
         static void Main(string[] args)
         {
             bool isNumber = false;  
-            int cardsCount = 0;
             Deck deck = new Deck();
             User user = new User();
             Random random = new Random();
@@ -20,22 +19,18 @@ namespace deck_of_cards
             {
                 Console.Write("Какое количество карт вы хотите достать: ");
 
-                if (int.TryParse(Console.ReadLine(), out cardsCount))
+                if (int.TryParse(Console.ReadLine(), out int cardsCount))
                 {
-                    isNumber = true;
+                    if (deck.CheckCardsCount(cardsCount))
+                    {
+                        isNumber = true;
+                        deck.GiveCards(user, random, cardsCount);
+                    }
+                    else
+                        Console.WriteLine("Недостаточно карт");
                 }
                 else
                     Console.WriteLine("Некоректная команда");
-            }
-
-            for(int i = 0; i < cardsCount; i++)
-            {
-                bool isEmpty = deck.GiveCard(user, random);
-
-                if (isEmpty)
-                {
-                    break;
-                }
             }
 
             user.ShowCards();
@@ -45,16 +40,18 @@ namespace deck_of_cards
 
     class User
     {
-        private List<Card> userCards = new List<Card>();
+        private List<Card> _cards = new List<Card>();
 
         public void TakeCard(Card card)
         {
-            userCards.Add(card);
+            _cards.Add(card);
         }
 
         public void ShowCards()
         {
-            foreach(var card in userCards)
+            Console.WriteLine("\nВаши карты:\n");
+
+            foreach(var card in _cards)
             {
                 Console.WriteLine($"{card.Value} {card.Suit}");
             }
@@ -63,26 +60,44 @@ namespace deck_of_cards
 
     class Deck
     {
-        private List<Card> deckCards = new List<Card>() { new Card("черви", "шестерка"), new Card("черви", "семерка"), new Card("черви", "восьмерка"), new Card("черви", "девятка"), new Card("черви", "десятка"), new Card("черви", "валет"), new Card("черви", "дама"), new Card("черви", "король"), new Card("черви", "туз"), new Card("пики", "шестерка"), new Card("пики", "семерка"), new Card("пики", "восьмерка"), new Card("пики", "девятка"), new Card("пики", "десятка"), new Card("пики", "валет"), new Card("пики", "дама"), new Card("пики", "король"), new Card("пики", "туз"), new Card("бубны", "шестерка"), new Card("бубны", "семерка"), new Card("бубны", "восьмерка"), new Card("бубны", "девятка"), new Card("бубны", "десятка"), new Card("бубны", "валет"), new Card("бубны", "дама"), new Card("бубны", "король"), new Card("бубны", "туз"), new Card("трефы", "шестерка"), new Card("трефы", "семерка"), new Card("трефы", "восьмерка"), new Card("трефы", "девятка"), new Card("трефы", "десятка"), new Card("трефы", "валет"), new Card("трефы", "дама"), new Card("трефы", "король"), new Card("трефы", "туз") };
+        private List<Card> _cards;
 
-        public bool GiveCard(User user, Random random)
+        public Deck()
         {
-            bool isEmpty = false;
+            _cards = CreateDeck();
+        }
 
-            if (deckCards.Count > 0)
+        public void GiveCards(User user, Random random, int cardsCount)
+        {
+            for(int i = 0; i < cardsCount; i++)
             {
-                int index = random.Next(0, deckCards.Count);
+                int index = random.Next(0, _cards.Count);
 
-                user.TakeCard(deckCards[index]);
-                deckCards.RemoveAt(index);
+                user.TakeCard(_cards[index]);
+                _cards.RemoveAt(index);
             }
-            else
+        }
+
+        public bool CheckCardsCount(int rightAmount)
+        {
+            return rightAmount <= _cards.Count;
+        }
+
+        private List<Card> CreateDeck()
+        {
+            List<Card> cards = new List<Card>();
+            string[] suit = new string[] {"черви", "пики", "бубны", "трефы"};
+            string[] value = new string[] { "шестерка", "семерка", "восьмерка", "девятка", "десятка", "валет", "дама", "король", "туз" };
+
+            for(int i = 0; i < suit.Length; i++)
             {
-                Console.WriteLine("В колоде нет больше карт");
-                isEmpty = true;
+                for(int j = 0; j < value.Length; j++)
+                {
+                    cards.Add(new Card(suit[i], value[j]));
+                }
             }
 
-            return isEmpty;
+            return cards;
         }
     }
 
