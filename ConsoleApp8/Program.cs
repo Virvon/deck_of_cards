@@ -21,16 +21,24 @@ namespace deck_of_cards
 
                 if (int.TryParse(Console.ReadLine(), out int cardsCount))
                 {
-                    if (deck.CheckCardsCount(cardsCount))
+                    if (deck.EnoughCards(cardsCount))
                     {
                         isNumber = true;
-                        deck.GiveCards(user, random, cardsCount);
+                        
+                        for(int i = 0; i < cardsCount; i++)
+                        {
+                            user.TakeCard(deck.GiveCard(random));
+                        }
                     }
                     else
+                    {
                         Console.WriteLine("Недостаточно карт");
+                    }
                 }
                 else
+                {
                     Console.WriteLine("Некоректная команда");
+                }    
             }
 
             user.ShowCards();
@@ -40,7 +48,12 @@ namespace deck_of_cards
 
     class User
     {
-        private List<Card> _cards = new List<Card>();
+        private List<Card> _cards;
+
+        public User()
+        {
+            _cards = new List<Card>();
+        }
 
         public void TakeCard(Card card)
         {
@@ -67,18 +80,17 @@ namespace deck_of_cards
             _cards = CreateDeck();
         }
 
-        public void GiveCards(User user, Random random, int cardsCount)
+        public Card GiveCard(Random random)
         {
-            for(int i = 0; i < cardsCount; i++)
-            {
-                int index = random.Next(0, _cards.Count);
+            int index = random.Next(0, _cards.Count);
+            Card card = _cards[index];
 
-                user.TakeCard(_cards[index]);
-                _cards.RemoveAt(index);
-            }
+            _cards.RemoveAt(index);
+
+            return card;
         }
 
-        public bool CheckCardsCount(int rightAmount)
+        public bool EnoughCards(int rightAmount)
         {
             return rightAmount <= _cards.Count;
         }
@@ -86,14 +98,14 @@ namespace deck_of_cards
         private List<Card> CreateDeck()
         {
             List<Card> cards = new List<Card>();
-            string[] suit = new string[] {"черви", "пики", "бубны", "трефы"};
-            string[] value = new string[] { "шестерка", "семерка", "восьмерка", "девятка", "десятка", "валет", "дама", "король", "туз" };
+            string[] suits = new string[] {"черви", "пики", "бубны", "трефы"};
+            string[] ranks = new string[] { "шестерка", "семерка", "восьмерка", "девятка", "десятка", "валет", "дама", "король", "туз" };
 
-            for(int i = 0; i < suit.Length; i++)
+            for(int i = 0; i < suits.Length; i++)
             {
-                for(int j = 0; j < value.Length; j++)
+                for(int j = 0; j < ranks.Length; j++)
                 {
-                    cards.Add(new Card(suit[i], value[j]));
+                    cards.Add(new Card(suits[i], ranks[j]));
                 }
             }
 
